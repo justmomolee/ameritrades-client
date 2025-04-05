@@ -1,0 +1,5 @@
+ <IfModule LiteSpeed>
+ RewriteEngine On
+ RewriteCond %{QUERY_STRING} "a=signup"
+ RewriteRule .* - [E=verifycaptcha]
+ </IfModule>

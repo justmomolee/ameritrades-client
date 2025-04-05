@@ -1,0 +1,273 @@
+// components/TraderCard.tsx
+import { Trader } from '@/types/types';
+import React, { useState } from 'react';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
+interface TraderCardProps {
+  traders: Trader[];
+  isCopied: boolean;
+  onCopy: (traderId: string) => Promise<any>;
+  isLoading?: boolean;
+}
+
+const TraderCard: React.FC<TraderCardProps> = ({
+  traders,
+  onCopy,
+  isLoading = false,
+  isCopied,
+}) => {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const handleCopy = async (traderId: string) => {
+    if (!isLoading) {
+      await onCopy(traderId);
+    }
+  };
+
+  // Helper functions for styling
+  const getProfitColor = (value: number) =>
+    value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-gray-500';
+
+  const getTagColor = (type: string, value: string) => {
+    if (type === 'risk') {
+      return value === 'Low'
+        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+        : value === 'Medium'
+          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+          : value === 'High'
+            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+    }
+    if (type === 'status') {
+      return value === 'active'
+        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+        : value === 'paused'
+          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+          : value === 'terminated'
+            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+    }
+    return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+  };
+
+  const sliderSettings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    responsive: [
+      { breakpoint: 1280, settings: { slidesToShow: 2 } },
+      { breakpoint: 768, settings: { slidesToShow: 1 } },
+    ],
+  };
+
+  return (
+    <div className="w-full">
+      <Slider {...sliderSettings}>
+        {traders.map((trader) => {
+          return (
+            <div key={trader._id} className="px-2">
+              <div
+                className={`relative rounded-lg shadow-md transition-all duration-200 overflow-hidden h-full
+                  ${
+                    isCopied
+                      ? 'border-2 border-blue-500 dark:border-blue-400 shadow-blue-500/20'
+                      : hoveredId === trader._id
+                        ? 'transform scale-[1.01] shadow-lg'
+                        : 'border border-gray-200 dark:border-gray-700'
+                  } bg-white dark:bg-gray-800`}
+                onMouseEnter={() => setHoveredId(trader._id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                {/* Status Badge */}
+                <div className="absolute top-2 right-2">
+                  <span
+                    className={`px-2 py-0.5 text-xs font-medium rounded-full uppercase ${getTagColor(
+                      'status',
+                      trader.status,
+                    )}`}
+                  >
+                    {trader.status}
+                  </span>
+                </div>
+
+                {/* Trader Header */}
+                <div className="p-3 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+                      {trader.profileImage ? (
+                        <img
+                          src={trader.profileImage}
+                          alt={trader.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-500 dark:text-gray-400">
+                          {trader.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+                        {trader.name}
+                      </h2>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        <span
+                          className={`px-1.5 py-0.5 text-xs font-medium rounded-full ${getTagColor(
+                            'risk',
+                            trader.riskLevel,
+                          )}`}
+                        >
+                          {trader.riskLevel}
+                        </span>
+                        <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                          {trader.specialization}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Monthly
+                      </span>
+                      <span
+                        className={`font-bold ${getProfitColor(
+                          trader.profitPercentage.monthly,
+                        )}`}
+                      >
+                        {trader.profitPercentage.monthly > 0 ? '+' : ''}
+                        {trader.profitPercentage.monthly}%
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Yearly
+                      </span>
+                      <span
+                        className={`font-bold ${getProfitColor(
+                          trader.profitPercentage.yearly,
+                        )}`}
+                      >
+                        {trader.profitPercentage.yearly > 0 ? '+' : ''}
+                        {trader.profitPercentage.yearly}%
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Win Rate
+                      </span>
+                      <span className="font-bold text-gray-900 dark:text-white">
+                        {trader.winRate}%
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Experience
+                      </span>
+                      <span className="font-bold text-gray-900 dark:text-white">
+                        {trader.experience}{' '}
+                        {trader.experience === 1 ? 'Yr' : 'Yrs'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bio - Shortened */}
+                  <div className="mt-3">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                      {trader.bio}
+                    </p>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className="mt-3 flex flex-wrap justify-between text-xs">
+                    <div className="flex gap-1">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Fee:
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {trader.copierFee}%
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Min:
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        ${trader.minimumCopyAmount}
+                      </span>
+                    </div>
+                    <div className="flex gap-1">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Copiers:
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {trader.totalCopiers.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Copy Button */}
+                  <div className="mt-3">
+                    <button
+                      onClick={() => handleCopy(trader._id)}
+                      disabled={isLoading || trader.status !== 'active'}
+                      className={`w-full px-3 py-1.5 rounded-md font-medium text-sm transition-all duration-300 
+                      ${
+                        isCopied
+                          ? 'bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700'
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white'
+                      }
+                      ${
+                        trader.status !== 'active' || isLoading
+                          ? 'opacity-60 cursor-not-allowed'
+                          : ''
+                      }`}
+                    >
+                      {isLoading ? (
+                        <span className="flex items-center justify-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-3 w-3 text-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Copying
+                        </span>
+                      ) : isCopied ? (
+                        'Copied'
+                      ) : (
+                        'Copy'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </Slider>
+    </div>
+  );
+};
+
+export default TraderCard;

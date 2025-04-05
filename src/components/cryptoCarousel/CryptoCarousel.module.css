@@ -1,0 +1,44 @@
+.ctn{
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 100px 0;
+}
+
+.wrp{
+  min-width: fit-content;
+  display: flex;
+  gap: 100px;
+  justify-content: space-around;
+  flex-shrink: 0;
+  padding: 40px 0px;
+  transition: all ease-in-out .5s;
+  transform: translateX(0%);
+  animation: slide 700s infinite linear;
+}
+
+.wrp img{
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% + 1400px));
+  }
+}
+
+
+
+
+@media screen and (max-width: 500px){
+  .ctn{
+    display: none;
+  }
+}
