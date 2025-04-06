@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: any) => {
   }, [location.pathname]);
 
   return (
-    <AuthContext.Provider value={{ user, fetching, login, logout }}>
+    <AuthContext.Provider value={{ user, fetching, fetchUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

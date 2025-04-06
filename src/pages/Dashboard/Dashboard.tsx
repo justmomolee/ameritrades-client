@@ -15,7 +15,7 @@ import { contextData } from '@/context/AuthContext';
 const url = import.meta.env.VITE_REACT_APP_SERVER_URL;
 
 export default function Dashboard() {
-  const { user } = contextData();
+  const { user, fetchUser } = contextData();
   const navigate = useNavigate();
   const [traders, setTraders] = useState([]);
   const [copiedTraderId, setCopiedTraderId] = useState<string | null>(null);
@@ -49,6 +49,7 @@ export default function Dashboard() {
 
       if (response.ok) {
         setCopiedTraderId(action === 'copy' ? traderId : null);
+        fetchUser(user._id);
         return true;
       }
       return false;
@@ -60,7 +61,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return navigate('/login');
-    if (user && user.fullName === '') return navigate('/dashboard/updateProfile');
+    if (user && user.fullName === '')
+      return navigate('/dashboard/updateProfile');
     fetchTraders();
   }, [user]);
 
@@ -83,11 +85,8 @@ export default function Dashboard() {
         <ChartSlide />
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <TraderGrid
-          traders={traders}
-          onCopyTrader={copyTrader}
-        />
+      <div className="py-8">
+        <TraderGrid traders={traders} onCopyTrader={copyTrader} />
       </div>
 
       <div className="w-full flex gap-5 my-4 max-[1100px]:flex-col mb-4">

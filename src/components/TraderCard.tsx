@@ -9,11 +9,12 @@ interface TraderCardProps {
 }
 
 const TraderCard: React.FC<TraderCardProps> = ({ traders, onCopy }) => {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [isSelected, setIsSelected] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = contextData();
 
   const handleCopy = async (traderId: string) => {
+    setIsSelected(traderId);
     try {
       setIsLoading(true);
       await onCopy(traderId);
@@ -58,12 +59,10 @@ const TraderCard: React.FC<TraderCardProps> = ({ traders, onCopy }) => {
                   ${
                     user.traderId === trader._id
                       ? 'border-2 border-blue-500 dark:border-blue-400 shadow-blue-500/20'
-                      : hoveredId === trader._id
+                      : isSelected === trader._id
                         ? 'transform scale-[1.01] shadow-lg'
                         : 'border border-gray-200 dark:border-gray-700'
                   } bg-white dark:bg-gray-800`}
-              onMouseEnter={() => setHoveredId(trader._id)}
-              onMouseLeave={() => setHoveredId(null)}
             >
               {/* Status Badge */}
               <div className="absolute top-3 right-2">
@@ -200,7 +199,7 @@ const TraderCard: React.FC<TraderCardProps> = ({ traders, onCopy }) => {
                   <button
                     onClick={() => handleCopy(trader._id)}
                     disabled={
-                      (isLoading && trader._id === hoveredId) ||
+                      (isLoading && trader._id === isSelected) ||
                       trader.status !== 'active'
                     }
                     className={`w-full px-3 py-1.5 rounded-md font-medium text-sm transition-all duration-300 
@@ -211,12 +210,12 @@ const TraderCard: React.FC<TraderCardProps> = ({ traders, onCopy }) => {
                       }
                       ${
                         trader.status !== 'active' ||
-                        (isLoading && trader._id === hoveredId)
+                        (isLoading && trader._id === isSelected)
                           ? 'opacity-60 cursor-not-allowed'
                           : ''
                       }`}
                   >
-                    {isLoading && trader._id === hoveredId ? (
+                    {isLoading && trader._id === isSelected ? (
                       <span className="flex items-center justify-center">
                         <svg
                           className="animate-spin -ml-1 mr-2 h-3 w-3 text-current"

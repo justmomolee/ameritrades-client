@@ -8,25 +8,18 @@ interface TraderGridProps {
   onCopyTrader: (traderId: string) => Promise<boolean>;
 }
 
-const TraderGrid: React.FC<TraderGridProps> = ({
-  traders,
-  onCopyTrader,
-}) => {
-
+const TraderGrid: React.FC<TraderGridProps> = ({ traders, onCopyTrader }) => {
   const handleCopyTrader = async (traderId: string) => {
     try {
       await onCopyTrader(traderId);
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   };
 
   return (
     <>
-          <TraderCard
-            traders={traders}
-            onCopy={handleCopyTrader}
-          />
+      <TraderCard traders={traders} onCopy={handleCopyTrader} />
 
       {traders.length === 0 && (
         <div className="text-center py-12">
