@@ -18,7 +18,7 @@ const TraderCard: React.FC<TraderCardProps> = ({ traders, onCopy }) => {
       setIsLoading(true);
       await onCopy(traderId);
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
 
