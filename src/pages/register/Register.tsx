@@ -19,7 +19,7 @@ export default function Register() {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const siteKey = import.meta.env.VITE_REACT_APP_CAPTCHA_SITE_KEY;
-  const [captchaToken, setCaptchaToken] = useState<string | null>('true');
+  const [captchaToken, setCaptchaToken] = useState<string | null>('false');
 
   const url = import.meta.env.VITE_REACT_APP_SERVER_URL;
   const recaptchaRef = useRef<ReCAPTCHA>(null);

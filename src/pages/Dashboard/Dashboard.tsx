@@ -86,7 +86,6 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8">
         <TraderGrid
           traders={traders}
-          copiedTraderId={copiedTraderId}
           onCopyTrader={copyTrader}
         />
       </div>
