@@ -27,7 +27,6 @@ const ManageTrader: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log(data);
       setTraders(data);
       setError(null);
     } catch (err) {
@@ -67,27 +66,35 @@ const ManageTrader: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (formData: Omit<Trader, '_id'>) => {
+  const handleFormSubmit = async (
+    formData: Omit<Trader, '_id'>,
+    profileImageFile?: File,
+  ) => {
+    setIsLoading(true);
     try {
+      const submitData = new FormData();
+
+      // Add the trader data as a JSON string
+      submitData.append('traderData', JSON.stringify(formData));
+
+      // Add the profile image if provided
+      if (profileImageFile) {
+        submitData.append('profileImage', profileImageFile);
+      }
+
       let response;
 
       if (editingTrader) {
         // Update existing trader
         response = await fetch(`${url}/trader/${editingTrader._id}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
+          body: submitData,
         });
       } else {
         // Create new trader
         response = await fetch(`${url}/trader/create`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
+          body: submitData,
         });
       }
 

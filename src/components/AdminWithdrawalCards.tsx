@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { CiSaveUp2 } from "react-icons/ci";
 
 export default function AdminWithdrawalCards() {
-  const [transactions, setTransactions] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [totalWithdrawal, setTotalWithdrawal] = useState(0)
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0)
   const [rejectedWithdrawal, setRejectedWithdrawals] = useState(0)
@@ -23,9 +23,9 @@ export default function AdminWithdrawalCards() {
   useEffect(() => {
     fetchUserTransactions();
     
-    if (transactions) {
+    if (transactions.length > 0) {
       const withdrawalsTransactions = transactions.filter(
-        (transaction: any) => transaction.status === "withdrawal" 
+        (transaction: any) => transaction.type === "withdrawal" 
       );
 
       const withdrawalSum = withdrawalsTransactions
@@ -42,7 +42,7 @@ export default function AdminWithdrawalCards() {
       setPendingWithdrawals(pendingSum);
       setRejectedWithdrawals(failedSum);
     }
-  }, []);
+  }, [transactions.length]);
 
 
 

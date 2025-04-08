@@ -12,8 +12,8 @@ export default function AdminUserCards() {
       const data = await res.json();
 
       if (res.ok) {
-        setUsers(data.length)
-        setActiveUsers(data.length)
+        setUsers(data.length - 1)
+        setActiveUsers(data.length - 1)
       }
       else throw new Error(data.message);
     } catch (error) {

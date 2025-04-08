@@ -1,11 +1,11 @@
 // components/TraderForm.tsx
 import { Trader } from '@/types/types';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import s from '../pages/register/Register.module.css';
 
 interface TraderFormProps {
   trader: Trader | null;
-  onSubmit: (data: Omit<Trader, '_id'>) => void;
+  onSubmit: (data: Omit<Trader, '_id'>, profileImageFile?: File) => void;
   onCancel: () => void;
   isLoading: boolean;
   error: string | null;
@@ -39,6 +39,10 @@ const TraderForm: React.FC<TraderFormProps> = ({
     status: 'active' as const,
   });
 
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (trader) {
       setFormData({
@@ -60,6 +64,11 @@ const TraderForm: React.FC<TraderFormProps> = ({
         copierFee: trader.copierFee || 0,
         status: trader.status || 'active',
       });
+
+      // If the trader has an existing profile image, set the preview
+      if (trader.profileImage) {
+        setPreviewUrl(trader.profileImage);
+      }
     }
   }, [trader]);
 
@@ -130,10 +139,39 @@ const TraderForm: React.FC<TraderFormProps> = ({
     }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImageFile(file);
+
+      // Create a preview URL for the selected image
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        if (typeof fileReader.result === 'string') {
+          setPreviewUrl(fileReader.result);
+        }
+      };
+      fileReader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImageFile(null);
+    setPreviewUrl('');
+    setFormData((prev) => ({
+      ...prev,
+      profileImage: '',
+    }));
+
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData)
-    onSubmit(formData);
+    onSubmit(formData, profileImageFile || undefined);
   };
 
   return (
@@ -173,17 +211,38 @@ const TraderForm: React.FC<TraderFormProps> = ({
                 htmlFor="profileImage"
                 className="block text-gray-700 dark:text-gray-300 mb-1"
               >
-                Profile Image URL
+                Profile Image
               </label>
-              <input
-                type="text"
-                id="profileImage"
-                name="profileImage"
-                value={formData.profileImage}
-                onChange={handleChange}
-                className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
-                placeholder="URL or leave blank for default"
-              />
+              <div className="flex flex-col space-y-2">
+                <input
+                  type="file"
+                  id="profileImage"
+                  name="profileImage"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  ref={fileInputRef}
+                  className="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                />
+
+                {previewUrl && (
+                  <div className="mt-2">
+                    <div className="relative inline-block">
+                      <img
+                        src={previewUrl}
+                        alt="Profile preview"
+                        className="h-24 w-24 object-cover rounded-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="mb-4">

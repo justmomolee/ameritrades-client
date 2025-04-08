@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PiChartBarHorizontalThin } from "react-icons/pi";
 
 export default function AdminTradeCards() {
-  const [transactions, setTransactions] = useState<any>(null)
+  const [transactions, setTransactions] = useState<any[]>([])
   const [totalTrades, setTotalTrades] = useState(0)
   const [totalInterest, setTotalInterest] = useState(0)
   const [pendingTrades, setPendingTrades] = useState(0)
@@ -23,14 +23,17 @@ export default function AdminTradeCards() {
   useEffect(() => {
     fetchTradeTransactions();
     
-    if (transactions) {
+    if (transactions.length > 0) {
       const tradesTransactions = transactions.filter(
         (transaction: any) => transaction.type === "trade" 
       );
 
       const tradesSum = tradesTransactions
+      .filter((transaction: any) => transaction.status === "success").length
+
+      const interestSum = tradesTransactions
       .filter((transaction: any) => transaction.status === "success")
-      .reduce((sum: number, transaction: any) => sum + transaction.amount, 0);
+      .reduce((sum: number, transaction: any) => sum + transaction.tradeData.interest, 0);
       
       const pendingSum = tradesTransactions
         .filter((transaction: any) => transaction.status === "pending").length
@@ -38,9 +41,9 @@ export default function AdminTradeCards() {
 
         setTotalTrades(tradesSum)
         setPendingTrades(pendingSum)
-        setTotalInterest(tradesSum)
+        setTotalInterest(interestSum)
     }
-  }, []);
+  }, [transactions.length]);
 
 
 
@@ -51,8 +54,8 @@ export default function AdminTradeCards() {
       <div className="flex flex-col gap-1 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border-l border-l-sky-600">
           <div className="w-full flex flex-row-reverse items-end justify-between">
             <h2 className="text-3xl -mb-2 text-gray-700 dark:text-white">
-              {Number(totalTrades).toLocaleString('en-US')}
-              <span className="text-xs text-gray-600 pl-[2px]">$</span>
+              {Number(totalTrades)}
+              <span className="text-xs text-gray-600 pl-[2px]"></span>
             </h2>
             <PiChartBarHorizontalThin className="text-4xl text-blue-600"/>
           </div>
@@ -65,7 +68,7 @@ export default function AdminTradeCards() {
       <div className="flex flex-col gap-1 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border-l border-l-warning">
           <div className="w-full flex flex-row-reverse items-end justify-between">
             <h2 className="text-3xl -mb-2 text-gray-700 dark:text-white">
-              {Number(pendingTrades).toLocaleString('en-US')}
+              {Number(pendingTrades)}
             </h2>
             <PiChartBarHorizontalThin className="text-4xl text-warning"/>
           </div>
@@ -80,7 +83,7 @@ export default function AdminTradeCards() {
           <div className="w-full flex flex-row-reverse items-end justify-between">
             <h2 className="text-3xl -mb-2 text-gray-700 dark:text-white">
               {Number(totalInterest).toLocaleString('en-US')}
-              <span className="text-xs text-gray-600 pl-[2px]">$</span>
+              <span className="text-xs text-gray-600 pl-[2px]">%</span>
             </h2>
             <PiChartBarHorizontalThin className="text-4xl text-lime-300"/>
           </div>
